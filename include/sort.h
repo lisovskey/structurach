@@ -31,7 +31,7 @@ void bsort(It first, It last, Function compare)
 template <typename It, typename Function>
 void isort(It first, It last, Function compare)
 {
-	for (auto i = first; i != last; i++) {
+	for (auto i = next(first); i != last; i++) {
         for (auto j = i; j != first && compare(*j, *prev(j)); j--) {
             swap(*j, *prev(j));
         }
