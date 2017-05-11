@@ -1,28 +1,31 @@
 /**
- * sort algorithms
- * created by lisovskey
- */
+* sort algorithms
+* created by lisovskey
+*/
 
 #ifndef SORT_H
 #define SORT_H
 
 #include <utility>
+#include <algorithm>
 #include <iterator>
 
-using std::prev;
-using std::next;
-using std::swap;
+template <typename It, typename T>
+constexpr bool is = std::is_same<std::iterator_traits<It>::iterator_category, T>::value;
 
 template <typename BidIt, typename Pred>
-void bsort(BidIt first, BidIt last, Pred compare)
+void bsort(BidIt first, BidIt last, Pred compare) noexcept
 /// bubble sort
 {
+	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
+		"bidirectional iterator required");
+
 	bool swapped;
 	do {
 		swapped = false;
-		for (BidIt i = next(first); i != last; ++i) {
-			if (compare(*i, *prev(i))) {
-				swap(*i, *prev(i));
+		for (BidIt i = std::next(first); i != last; ++i) {
+			if (compare(*i, *std::prev(i))) {
+				std::swap(*i, *std::prev(i));
 				swapped = true;
 			}
 		}
@@ -30,41 +33,50 @@ void bsort(BidIt first, BidIt last, Pred compare)
 }
 
 template <typename BidIt, typename Pred>
-void isort(BidIt first, BidIt last, Pred compare)
+void isort(BidIt first, BidIt last, Pred compare) noexcept
 /// insertion sort
 {
-	for (BidIt i = next(first); i != last; ++i) {
-		for (BidIt j = i; j != first && compare(*j, *prev(j)); --j) {
-			swap(*j, *prev(j));
+	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
+		"bidirectional iterator required");
+
+	for (BidIt i = std::next(first); i != last; ++i) {
+		for (BidIt j = i; j != first && compare(*j, *std::prev(j)); --j) {
+			std::swap(*j, *std::prev(j));
 		}
 	}
 }
 
 template <typename BidIt, typename Pred>
-void ssort(BidIt first, BidIt last, Pred compare)
+void ssort(BidIt first, BidIt last, Pred compare) noexcept
 /// selection sort
 {
-	for (BidIt i = first; i != prev(last); ++i) {
+	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
+		"bidirectional iterator required");
+
+	for (BidIt i = first; i != std::prev(last); ++i) {
 		BidIt tmp = i;
-		for (BidIt j = next(i); j != last; ++j) {
+		for (BidIt j = std::next(i); j != last; ++j) {
 			if (compare(*j, *tmp)) {
 				tmp = j;
 			}
 		}
 		if (tmp != i) {
-			swap(*i, *tmp);
+			std::swap(*i, *tmp);
 		}
 	}
 }
 
 template <typename RanIt, typename Pred>
-void shsort(RanIt first, RanIt last, Pred compare)
+void shsort(RanIt first, RanIt last, Pred compare) noexcept
 /// shell sort
 {
-	for (auto d = (last - first) / 2; d > 0; d /= 2) {
-		for (RanIt i = first + d; i != last; ++i) {
-			for (RanIt j = i; j - first >= d && compare(*j, *(j - d)); j -= d) {
-				swap(*j, *(j - d));
+	static_assert(is<RanIt, std::random_access_iterator_tag>,
+		"random access iterator required");
+
+	for (auto dist = (last - first) / 2; dist > 0; dist /= 2) {
+		for (RanIt i = first + dist; i != last; ++i) {
+			for (RanIt j = i; j - first >= dist && compare(*j, *(j - dist)); j -= dist) {
+				std::swap(*j, *(j - dist));
 			}
 		}
 	}
