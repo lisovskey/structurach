@@ -1,7 +1,7 @@
 /**
-* sort algorithms
-* created by lisovskey
-*/
+ * sort algorithms
+ * created by lisovskey
+ */
 
 #ifndef SORT_H
 #define SORT_H
@@ -63,6 +63,23 @@ void ssort(BidIt first, BidIt last, Pred compare) noexcept
 		if (tmp != i) {
 			std::swap(*i, *tmp);
 		}
+	}
+}
+
+template <typename BidIt, typename Pred>
+void gsort(BidIt first, BidIt last, Pred compare) noexcept
+/// gnome sort
+{
+	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
+		"bidirectional iterator required");
+
+	BidIt i = first;
+	while (i != last) {
+		if (i != first && compare(*i, *std::prev(i))) {
+			std::swap(*i, *std::prev(i));
+			i--;
+		}
+		else i++;
 	}
 }
 
