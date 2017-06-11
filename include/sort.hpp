@@ -12,6 +12,7 @@
 #include <utility>
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 RZD_BEGIN
 
@@ -20,11 +21,11 @@ template <typename It, typename T>
 constexpr bool is = std::is_same<std::iterator_traits<It>::iterator_category, T>::value;
 
 // bubble sort
-template <typename BidIt, typename Pred>
-void bsort(BidIt first, BidIt last, Pred compare)
+template <typename BidIt, typename Pred = std::less<>>
+void bsort(BidIt first, BidIt last, Pred compare = {})
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
-		"bidirectional iterator required");
+		"at least bidirectional iterator required");
 
 	bool swapped;
 	do {
@@ -39,11 +40,11 @@ void bsort(BidIt first, BidIt last, Pred compare)
 }
 
 // insertion sort
-template <typename BidIt, typename Pred>
-void isort(BidIt first, BidIt last, Pred compare)
+template <typename BidIt, typename Pred = std::less<>>
+void isort(BidIt first, BidIt last, Pred compare = {})
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
-		"bidirectional iterator required");
+		"at least bidirectional iterator required");
 
 	for (BidIt i = std::next(first); i != last; ++i) {
 		for (BidIt j = i; j != first && compare(*j, *std::prev(j)); --j) {
@@ -53,11 +54,11 @@ void isort(BidIt first, BidIt last, Pred compare)
 }
 
 // selection sort
-template <typename BidIt, typename Pred>
-void ssort(BidIt first, BidIt last, Pred compare)
+template <typename BidIt, typename Pred = std::less<>>
+void ssort(BidIt first, BidIt last, Pred compare = {})
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
-		"bidirectional iterator required");
+		"at least bidirectional iterator required");
 
 	for (BidIt i = first; i != std::prev(last); ++i) {
 		BidIt tmp = i;
@@ -73,11 +74,11 @@ void ssort(BidIt first, BidIt last, Pred compare)
 }
 
 // gnome sort
-template <typename BidIt, typename Pred>
-void gsort(BidIt first, BidIt last, Pred compare)
+template <typename BidIt, typename Pred = std::less<>>
+void gsort(BidIt first, BidIt last, Pred compare = {})
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
-		"bidirectional iterator required");
+		"at least bidirectional iterator required");
 
 	BidIt i = first;
 	while (i != last) {
@@ -90,38 +91,40 @@ void gsort(BidIt first, BidIt last, Pred compare)
 }
 
 // quick sort
-template <typename BidIt, typename Pred>
-void qsort(BidIt first, BidIt last, Pred compare)
+template <typename BidIt, typename Pred = std::less<>>
+void qsort(BidIt first, BidIt last, Pred compare = {})
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
-		"bidirectional iterator required");
+		"at least bidirectional iterator required");
 
 	auto size = std::distance(first, last);
 
 	if (size > 1) {
-		using content_type = std::iterator_traits<BidIt>::value_type;
+		using content_type = typename std::iterator_traits<BidIt>::value_type;
 
 		content_type pivot = *first;
-		std::vector<content_type> left(size), right(size);
-		auto left_end = left.begin();
-		auto right_end = right.begin();
+		std::vector<content_type> left, right;
+		left.reserve(size);
+		right.reserve(size);
+		auto left_inserter = std::back_inserter(left);
+		auto right_inserter = std::back_inserter(right);
 
 		for (BidIt i = std::next(first); i != last; ++i) {
-			compare(*i, pivot) ? *left_end++ = *i : *right_end++ = *i;
+			compare(*i, pivot) ? *left_inserter++ = *i : *right_inserter++ = *i;
 		}
+		
+		qsort(left.begin(), left.end(), compare);
+		qsort(right.begin(), right.end(), compare);
 
-		qsort(left.begin(), left_end, compare);
-		qsort(right.begin(), right_end, compare);
-
-		std::copy(left.begin(), left_end, first);
-		*std::next(first, std::distance(left.begin(), left_end)) = pivot;
-		std::copy(right.begin(), right_end, std::next(first, std::distance(left.begin(), left_end) + 1));
+		std::copy(left.begin(), left.end(), first);
+		*std::next(first, std::distance(left.begin(), left.end())) = pivot;
+		std::copy(right.begin(), right.end(), std::next(first, std::distance(left.begin(), left.end()) + 1));
 	}
 }
 
 // shell sort
-template <typename RanIt, typename Pred>
-void shsort(RanIt first, RanIt last, Pred compare)
+template <typename RanIt, typename Pred = std::less<>>
+void shsort(RanIt first, RanIt last, Pred compare = {})
 {
 	static_assert(is<RanIt, std::random_access_iterator_tag>,
 		"random access iterator required");
