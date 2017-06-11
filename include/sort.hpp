@@ -21,7 +21,7 @@ constexpr bool is = std::is_same<std::iterator_traits<It>::iterator_category, T>
 
 // bubble sort
 template <typename BidIt, typename Pred>
-void bsort(BidIt first, BidIt last, Pred compare) noexcept
+void bsort(BidIt first, BidIt last, Pred compare)
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
 		"bidirectional iterator required");
@@ -40,7 +40,7 @@ void bsort(BidIt first, BidIt last, Pred compare) noexcept
 
 // insertion sort
 template <typename BidIt, typename Pred>
-void isort(BidIt first, BidIt last, Pred compare) noexcept
+void isort(BidIt first, BidIt last, Pred compare)
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
 		"bidirectional iterator required");
@@ -54,7 +54,7 @@ void isort(BidIt first, BidIt last, Pred compare) noexcept
 
 // selection sort
 template <typename BidIt, typename Pred>
-void ssort(BidIt first, BidIt last, Pred compare) noexcept
+void ssort(BidIt first, BidIt last, Pred compare)
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
 		"bidirectional iterator required");
@@ -74,7 +74,7 @@ void ssort(BidIt first, BidIt last, Pred compare) noexcept
 
 // gnome sort
 template <typename BidIt, typename Pred>
-void gsort(BidIt first, BidIt last, Pred compare) noexcept
+void gsort(BidIt first, BidIt last, Pred compare)
 {
 	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
 		"bidirectional iterator required");
@@ -89,9 +89,39 @@ void gsort(BidIt first, BidIt last, Pred compare) noexcept
 	}
 }
 
+// quick sort
+template <typename BidIt, typename Pred>
+void qsort(BidIt first, BidIt last, Pred compare)
+{
+	static_assert(is<BidIt, std::bidirectional_iterator_tag> || is<BidIt, std::random_access_iterator_tag>,
+		"bidirectional iterator required");
+
+	auto size = std::distance(first, last);
+
+	if (size > 1) {
+		using content_type = std::iterator_traits<BidIt>::value_type;
+
+		content_type pivot = *first;
+		std::vector<content_type> left(size), right(size);
+		auto left_end = left.begin();
+		auto right_end = right.begin();
+
+		for (BidIt i = std::next(first); i != last; ++i) {
+			compare(*i, pivot) ? *left_end++ = *i : *right_end++ = *i;
+		}
+
+		qsort(left.begin(), left_end, compare);
+		qsort(right.begin(), right_end, compare);
+
+		std::copy(left.begin(), left_end, first);
+		*std::next(first, std::distance(left.begin(), left_end)) = pivot;
+		std::copy(right.begin(), right_end, std::next(first, std::distance(left.begin(), left_end) + 1));
+	}
+}
+
 // shell sort
 template <typename RanIt, typename Pred>
-void shsort(RanIt first, RanIt last, Pred compare) noexcept
+void shsort(RanIt first, RanIt last, Pred compare)
 {
 	static_assert(is<RanIt, std::random_access_iterator_tag>,
 		"random access iterator required");
@@ -102,35 +132,6 @@ void shsort(RanIt first, RanIt last, Pred compare) noexcept
 				std::swap(*j, *(j - dist));
 			}
 		}
-	}
-}
-
-// quick sort
-template <typename RanIt, typename Pred>
-void qsort(RanIt first, RanIt last, Pred compare)
-{
-	static_assert(is<RanIt, std::random_access_iterator_tag>,
-		"random access iterator required");
-
-	if (last - first > 1) {
-		using content_type = std::iterator_traits<RanIt>::value_type;
-
-		content_type pivot = *first;
-		std::vector<content_type> left(last - first);
-		std::vector<content_type> right(last - first);
-		RanIt left_end = left.begin();
-		RanIt right_end = right.begin();
-
-		for (RanIt i = first + 1; i != last; ++i) {
-			compare(*i, pivot) ? *left_end++ = *i : *right_end++ = *i;
-		}
-
-		qsort(left.begin(), left_end, compare);
-		qsort(right.begin(), right_end, compare);
-
-		std::copy(left.begin(), left_end, first);
-		*std::next(first, left_end - left.begin()) = pivot;
-		std::copy(right.begin(), right_end, std::next(first, left_end - left.begin() + 1));
 	}
 }
 
