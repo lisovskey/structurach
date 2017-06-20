@@ -7,6 +7,7 @@
 #define TREE_ITERATOR_HPP
 
 #include "tree.hpp"
+#include <stdexcept>
 
 namespace rzd {
 
@@ -17,26 +18,24 @@ namespace rzd {
 	> class tree<Key, T, Compare>::iterator {
 
 		using pointer = typename tree::pointer;
-		using reference = typename tree::reference;
+		using value_type = typename tree::value_type;
 
 		const tree& tree_ref;
 		bool is_end;
 
 		pointer prev_parent(pointer leaf)
 		{
-			if (!leaf->parent)
-				throw std::exception();
-			else if (tree_ref.cmp(leaf->parent->data.first, leaf->data.first)) {
-				is_end = false;
+			if (leaf->parent == nullptr)
+				throw std::out_of_range("iterator went over the begin");
+			else if (tree_ref.cmp(leaf->parent->data.first, leaf->data.first))				
 				return leaf->parent;
-			}
 			else
 				return prev_parent(leaf->parent);
 		}
 
 		pointer next_parent(pointer leaf)
 		{
-			if (!leaf->parent)
+			if (leaf->parent == nullptr)
 				return nullptr;
 			else if (tree_ref.cmp(leaf->data.first, leaf->parent->data.first))
 				return leaf->parent;
@@ -52,18 +51,23 @@ namespace rzd {
 		{
 			if (is_end)
 				leaf = tree_ref.rightmost();
-			else if (value->left)
+			else if (leaf == nullptr)
+				throw std::out_of_range("iterator went wrong way");
+			else if (leaf->left != nullptr)
 				leaf = tree_ref.rightmost(leaf->left);
 			else
 				leaf = prev_parent(value);
+			is_end = false;
 			return *this;
 		}
 
 		iterator& operator++()
 		{
 			if (is_end)
-				throw std::exception();
-			else if (leaf->right)
+				throw std::out_of_range("iterator went over the end");
+			else if (leaf == nullptr)
+				throw std::out_of_range("iterator went wrong way");
+			else if (leaf->right != nullptr)
 				leaf = tree_ref.leftmost(leaf->right);
 			else if (!(leaf = next_parent(leaf)))
 				is_end = true;
@@ -84,7 +88,7 @@ namespace rzd {
 			return result;
 		}
 
-		reference operator*()
+		value_type& operator*()
 		{
 			return leaf->data;
 		}
@@ -99,10 +103,12 @@ namespace rzd {
 			return leaf != it.leaf;
 		}
 
-		iterator(const tree& tree_ref, pointer leaf, bool is_end)
+		iterator(const tree& tree_ref, pointer leaf)
 			: tree_ref{ tree_ref }
 			, leaf{ leaf }
-			, is_end{ is_end } {}
+		{
+			is_end = leaf == nullptr;
+		}
 
 	};
 

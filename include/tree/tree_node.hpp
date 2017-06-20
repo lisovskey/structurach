@@ -20,18 +20,17 @@ namespace rzd {
 
 		using value_type = typename tree::value_type;
 		using pointer = typename tree::pointer;
-		using reference = typename tree::reference;
 
 		value_type data;
 		pointer left;
 		pointer parent;
 		pointer right;
 
-		node(tree& tree_ref, const reference data)
+		node(tree& tree_ref, const pointer& parent, const value_type& data)
 			: tree_ref{ tree_ref }
 			, data{ data }
 			, left{ nullptr }
-			, parent{ nullptr }
+			, parent{ parent }
 			, right{ nullptr }
 		{
 			tree_ref.size_count++;

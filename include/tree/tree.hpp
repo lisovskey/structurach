@@ -9,195 +9,287 @@
 #ifndef TREE_HPP
 #define TREE_HPP
 
-#define RZD_BEGIN namespace rzd {
-#define RZD_END }
-#define ANYWAY
-#define THEN
-
 #include <memory>
-#include <optional>
 #include <functional>
 
-RZD_BEGIN
+namespace rzd {
 
-// binary search tree
-template <
-	typename Key,
-	typename T,
-	typename Compare = std::less<Key>
-> class tree {
+	// binary search tree
+	template <
+		typename Key,
+		typename T,
+		typename Compare = std::less<Key>
+	> class tree {
 
-	// unit of tree
-	struct node;
+		// unit of tree
+		struct node;
 
-public:
+	public:
 
-	// in-class types
-	using pointer = std::shared_ptr<node>;
-	using key_type = Key;
-	using mapped_type = T;
-	using value_type = std::pair<Key, T>;
-	using size_type = std::size_t;
-	using key_compare = Compare;
-	using mapped_reference = T&;
-	using reference = value_type&;
-	using difference_type = std::ptrdiff_t;
+		// in-class types
+		using pointer = std::shared_ptr<node>;
+		using key_type = Key;
+		using mapped_type = T;
+		using value_type = std::pair<Key, T>;
+		using size_type = std::size_t;
+		using key_compare = Compare;
+		using difference_type = std::ptrdiff_t;
 
-	// bidirectional
-	class iterator;
+		// bidirectional
+		class iterator;
 
-private:
+	private:
 
-	// predicate
-	key_compare cmp;
+		// predicate
+		key_compare cmp;
 
-	// start point
-	pointer root;
-	
-	// fast access size
-	size_type size_count;
+		// start point
+		pointer root;
 
-	//	IF      CONDITION                           ACTION
+		// fast access size
+		size_type size_count;
 
-	pointer& insert(pointer& leaf, const reference data)
-	{
-		if      (!leaf)                             leaf = pointer{ new node{ *this, data } };
-		else if (cmp(data.first, leaf->data.first)) return insert(leaf->left, data)->parent = leaf;
-		else if (cmp(leaf->data.first, data.first)) return insert(leaf->right, data)->parent = leaf;
-		else                                        leaf->data.second = data.second;
-		ANYWAY                                      return leaf;
-	}
-
-	const pointer& find(const pointer& leaf, const key_type& key) const
-	{
-		if      (!leaf || leaf->data.first == key)  return leaf;
-		else if (cmp(key, leaf->data.first))        return find(leaf->left, key);
-		else                                        return find(leaf->right, key);
-	}
-
-	pointer& leftmost(pointer& leaf) const
-	{
-		if      (leaf->left)                        return leftmost(leaf->left);
-		else                                        return leaf;
-	}
-
-	pointer& rightmost(pointer& leaf) const
-	{
-		if      (leaf->right)                       return rightmost(leaf->right);
-		else                                        return leaf;
-	}
-
-	bool erase(pointer& leaf, const key_type& key)
-	{
-		if      (!leaf)                             return false;
-		else if (cmp(key, leaf->data.first))        return erase(leaf->left, key);
-		else if (cmp(leaf->data.first, key))        return erase(leaf->right, key);
-		else if (leaf->left && leaf->right) {
-		    THEN                                    leaf->data = leftmost(leaf->right)->data;
-		    THEN                                    return erase(leftmost(leaf->right), leaf->data.first);
+		pointer& insert(pointer& leaf, const value_type& data)
+		{
+			if (cmp(data.first, leaf->data.first)) {
+				if (leaf->left == nullptr)
+					return leaf->left = { new node{ *this, leaf, data } };
+				else
+					return insert(leaf->left, data);
+			}
+			else if (cmp(leaf->data.first, data.first)) {
+				if (leaf->right == nullptr)
+					return leaf->right = { new node{ *this, leaf, data } };
+				else
+					return insert(leaf->right, data);
+			}
+			else {
+				leaf->data = data;
+				return leaf;
+			}
 		}
-		else if (leaf->left) {
-			THEN                                    leaf->left->parent = leaf->parent;
-			THEN                                    leaf = leaf->left;
+
+		const pointer& find(const pointer& leaf, const key_type& key) const
+		{
+			if (leaf == nullptr || leaf->data.first == key) {
+				return leaf;
+			}
+			else if (cmp(key, leaf->data.first)) {
+				return find(leaf->left, key);
+			}
+			else {
+				return find(leaf->right, key);
+			}
 		}
-		else if (leaf->right) {
-		    THEN                                    leaf->right->parent = leaf->parent;
-		    THEN                                    leaf = leaf->right;
+
+		pointer& leftmost(pointer& leaf)
+		{
+			if (leaf->left != nullptr) {
+				return leftmost(leaf->left);
+			}
+			else {
+				return leaf;
+			}
 		}
-		else                                        leaf = nullptr;
-		ANYWAY                                      return true;
-	}
 
-	void clear(pointer& leaf)
-	{
-		if      (leaf) {
-		    THEN                                    clear(leaf->left);
-		    THEN                                    clear(leaf->right);
-		    THEN                                    leaf = nullptr;
+		const pointer& leftmost(const pointer& leaf) const
+		{
+			if (leaf->left != nullptr) {
+				return leftmost(leaf->left);
+			}
+			else {
+				return leaf;
+			}
 		}
-	}
 
-public:
+		pointer& rightmost(pointer& leaf)
+		{
+			if (leaf->right != nullptr) {
+				return rightmost(leaf->right);
+			}
+			else {
+				return leaf;
+			}
+		}
 
-	// inserts new node with key and value
-	inline iterator insert(const reference data)
-	{
-		ANYWAY                                      return iterator{ *this, insert(root, data), false };
-	}
+		const pointer& rightmost(const pointer& leaf) const
+		{
+			if (leaf->right != nullptr) {
+				return rightmost(leaf->right);
+			}
+			else {
+				return leaf;
+			}
+		}
 
-	// return optional data by key
-	inline std::optional<value_type> find(const key_type& key) const
-	{
-		if      (pointer leaf{ find(root, key) })   return { leaf->data };
-		else                                        return {};
-	}
+		bool erase(pointer& leaf, const key_type& key)
+		{
+			if (leaf == nullptr) {
+				return false;
+			}
+			else if (cmp(key, leaf->data.first)) {
+				return erase(leaf->left, key);
+			}
+			else if (cmp(leaf->data.first, key)) {
+				return erase(leaf->right, key);
+			}
+			else if (leaf->left != nullptr && leaf->right != nullptr) {
+				leaf->data = leftmost(leaf->right)->data;
+				return erase(leftmost(leaf->right), leaf->data.first);
+			}
+			else if (leaf->left != nullptr) {
+				leaf->left->parent = leaf->parent;
+				leaf = leaf->left;
+			}
+			else if (leaf->right != nullptr) {
+				leaf->right->parent = leaf->parent;
+				leaf = leaf->right;
+			}
+			else {
+				leaf = nullptr;
+			}
+			return true;
+		}
 
-	// remove node by key
-	inline bool erase(const iterator& pos)
-	{
-		ANYWAY                                      return erase(pos.value, (*pos).first);
-	}
+		void clear(pointer& leaf)
+		{
+			if (leaf != nullptr) {
+				clear(leaf->left);
+				clear(leaf->right);
+				leaf = nullptr;
+			}
+		}
 
-	// remove node by key
-	inline bool erase(const key_type& key)
-	{
-		ANYWAY                                      return erase(root, key);
-	}
+	public:
 
-	// remove all nodes
-	inline void clear()
-	{
-		ANYWAY                                      clear(root);
-	}
+		// insert new node with key and value with hint
+		inline iterator insert(const iterator& it, const value_type& data)
+		{
+			if (it == end())
+				return { *this, it = { new node{ *this, nullptr, data } } };
+			else
+				return { *this, insert(it.leaf, data) };
+		}
 
-	// return number of nodes
-	inline size_type size() const
-	{
-		ANYWAY                                      return size_count;
-	}
+		// insert new node with key and value
+		inline iterator insert(const value_type& data)
+		{
+			if (root == nullptr)
+				return { *this, root = { new node{ *this, nullptr, data } } };
+			else
+				return { *this, insert(root, data) };
+		}
 
-	// return true if tree is empty
-	inline bool empty() const
-	{
-		ANYWAY                                      return size_count == 0;
-	}
+		// return iterator by key
+		inline iterator find(const key_type& key)
+		{
+			if (pointer leaf{ find(root, key) })
+				return { *this, leaf };
+			else
+				return end();
+		}
 
-	// return iterator of the first node
-	inline iterator begin()
-	{
-		ANYWAY                                     return iterator{ *this, leftmost(root), false };
-	}
+		// return const iterator by key
+		inline const iterator find(const key_type& key) const
+		{
+			if (pointer leaf{ find(root, key) })
+				return { *this, leaf };
+			else
+				return end();
+		}
 
-	// return iterator of the post-last node
-	inline iterator end()
-	{
-		ANYWAY                                     return iterator{ *this, nullptr, true };
-	}
+		// remove node by iterator
+		inline bool erase(iterator& it)
+		{
+			return erase(it.leaf, (*it).first);
+		}
 
-	// return value reference by key
-	inline mapped_reference operator[](const key_type& key)
-	{
-		ANYWAY                                      pointer leaf{ find(root, key) };
-		if      (!leaf)                             insert(std::make_pair(key, mapped_type{}));
-		ANYWAY                                      return find(root, key)->data.second;
-	}
+		// remove node by key
+		inline bool erase(const key_type& key)
+		{
+			return erase(root, key);
+		}
 
-	// create filled tree
-	tree(std::initializer_list<value_type> init)
-		: cmp{ key_compare{} }
-		, size_count{ 0 }
-	{
-		for     (auto item : init)                  insert(root, item);
-	}
+		// remove all nodes
+		inline void clear()
+		{
+			clear(root);
+		}
 
-	// create empty tree
-	explicit tree()
-		: root{ nullptr }
-		, cmp{ key_compare{} }
-		, size_count{ 0 } {}
+		// return number of nodes
+		inline size_type size() const
+		{
+			return size_count;
+		}
 
-};
+		// return true if tree is empty
+		inline bool empty() const
+		{
+			return size_count == 0;
+		}
 
-RZD_END
+		// return iterator of the first node
+		inline iterator begin()
+		{
+			if (root == nullptr)
+				return end();
+			else
+				return { *this, leftmost(root) };
+		}
+
+		// return const iterator of the first node
+		inline const iterator begin() const
+		{
+			if (root == nullptr)
+				return end();
+			else
+				return { *this, leftmost(root) };
+		}
+
+		// return iterator of the post-last node
+		inline iterator end()
+		{
+			return { *this, nullptr };
+		}
+
+		// return const iterator of the post-last node
+		inline const iterator end() const
+		{
+			return { *this, nullptr };
+		}
+
+		// return value reference by key
+		inline mapped_type& operator[](const key_type& key)
+		{
+			if (pointer leaf{ find(root, key) })
+				return leaf->data.second;
+			else
+				return (*insert(std::make_pair(key, mapped_type{}))).second;
+		}
+
+		// create empty tree
+		tree()
+			: root{ nullptr }
+			, cmp{ key_compare{} }
+			, size_count{} {}
+
+		// create empty tree with custom predicate
+		explicit tree(const key_compare& cmp)
+			: root{ nullptr }
+			, cmp{ cmp }
+			, size_count{} {}
+
+		// create filled tree
+		tree(std::initializer_list<value_type> init)
+			: cmp{ key_compare{} }
+			, size_count{}
+		{
+			for (const value_type& item : init)
+				insert(item);
+		}
+
+	};
+
+}
 
 #endif
