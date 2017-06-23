@@ -50,13 +50,13 @@ namespace rzd {
 		iterator& operator--()
 		{
 			if (is_end)
-				leaf = tree_ref.rightmost();
+				leaf = tree_ref.rightmost(tree_ref.root);
 			else if (leaf == nullptr)
 				throw std::out_of_range("iterator went wrong way");
 			else if (leaf->left != nullptr)
 				leaf = tree_ref.rightmost(leaf->left);
 			else
-				leaf = prev_parent(value);
+				leaf = prev_parent(leaf);
 			is_end = false;
 			return *this;
 		}
