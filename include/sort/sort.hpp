@@ -21,18 +21,18 @@ template <typename It, typename T>
 constexpr bool is = std::is_base_of<T, std::iterator_traits<It>::iterator_category>::value;
 
 // bubble sort
-template <typename BidIt, typename Pred = std::less<>>
-void bsort(BidIt first, BidIt last, Pred compare = {})
+template <typename ForIt, typename Pred = std::less<>>
+void bsort(ForIt first, ForIt last, Pred compare = {})
 {
-	static_assert(is<BidIt, std::bidirectional_iterator_tag>,
+	static_assert(is<ForIt, std::forward_iterator_tag>,
 		"at least bidirectional iterator required");
 
 	bool swapped;
 	do {
 		swapped = false;
-		for (BidIt i = std::next(first); i != last; ++i) {
-			if (compare(*i, *std::prev(i))) {
-				std::iter_swap(i, std::prev(i));
+		for (ForIt i = first; std::next(i) != last; ++i) {
+			if (compare(*std::next(i), *i)) {
+				std::iter_swap(std::next(i), i);
 				swapped = true;
 			}
 		}
