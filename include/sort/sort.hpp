@@ -143,6 +143,13 @@ namespace rzd {
         }
     }
 
+    // qsort wrapper
+    template <typename It, typename Pred = std::less<>>
+    void sort(It first, It last, Pred compare = {})
+    {
+        rzd::qsort(first, last, compare);            
+    }
+
 }
 
 #endif

@@ -1,2 +1,5 @@
 # <p align="center">Structurach of the Head</p>
+### Libraries:
+ * [Sort Algorithms](include/sort)
+ * [Binary Search Tree](include/tree)
 ### <p align="center">Copyright 2017 [lisovskey](https://vk.com/lisovskey)</p>
