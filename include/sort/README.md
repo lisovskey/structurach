@@ -24,13 +24,13 @@ rzd::sort(sample_list.begin(), sample_list.end(), std::greater<>());
 #### Specify sort method
 ```
 // merge sort, for example
-rzd::msort(sample_list.begin(), sample_list.end());
+rzd::merge_sort(sample_list.begin(), sample_list.end());
 ```
 ### Avalible sort algorithms:
- * Bubble Sort: `rzd::bsort`
- * Insertion Sort: `rzd::isort`
- * Selection Sort: `rzd::ssort`
- * Gnome Sort: `rzd::gsort`
- * Shell Sort: `rzd::shsort`
- * Merge Sort: `rzd::msort`
- * Quick Sort: `rzd::qsort`
+ * `rzd::bubble_sort`
+ * `rzd::insertion_sort`
+ * `rzd::selection_sort`
+ * `rzd::gnome_sort`
+ * `rzd::shell_sort`
+ * `rzd::merge_sort`
+ * `rzd::quick_sort`

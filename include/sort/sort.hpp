@@ -12,13 +12,12 @@
 
 namespace rzd {
 
-    // iterator check
+    // iterator type check
     template <typename It, typename T>
     constexpr bool is = std::is_base_of<T, typename std::iterator_traits<It>::iterator_category>::value;
 
-    // bubble sort
     template <typename ForIt, typename Pred = std::less<>>
-    void bsort(ForIt first, ForIt last, Pred compare = {})
+    void bubble_sort(ForIt first, ForIt last, Pred compare = {})
     {
         static_assert(is<ForIt, std::forward_iterator_tag>,
                       "at least bidirectional iterator required");
@@ -35,9 +34,8 @@ namespace rzd {
         } while (swapped);
     }
 
-    // insertion sort
     template <typename BidIt, typename Pred = std::less<>>
-    void isort(BidIt first, BidIt last, Pred compare = {})
+    void insertion_sort(BidIt first, BidIt last, Pred compare = {})
     {
         static_assert(is<BidIt, std::bidirectional_iterator_tag>,
                       "at least bidirectional iterator required");
@@ -49,9 +47,8 @@ namespace rzd {
         }
     }
 
-    // selection sort
     template <typename BidIt, typename Pred = std::less<>>
-    void ssort(BidIt first, BidIt last, Pred compare = {})
+    void selection_sort(BidIt first, BidIt last, Pred compare = {})
     {
         static_assert(is<BidIt, std::bidirectional_iterator_tag>,
                       "at least bidirectional iterator required");
@@ -69,9 +66,8 @@ namespace rzd {
         }
     }
 
-    // gnome sort
     template <typename BidIt, typename Pred = std::less<>>
-    void gsort(BidIt first, BidIt last, Pred compare = {})
+    void gnome_sort(BidIt first, BidIt last, Pred compare = {})
     {
         static_assert(is<BidIt, std::bidirectional_iterator_tag>,
                       "at least bidirectional iterator required");
@@ -86,9 +82,8 @@ namespace rzd {
         }
     }
 
-    // shell sort
     template <typename RanIt, typename Pred = std::less<>>
-    void shsort(RanIt first, RanIt last, Pred compare = {})
+    void shell_sort(RanIt first, RanIt last, Pred compare = {})
     {
         static_assert(is<RanIt, std::random_access_iterator_tag>,
                       "random access iterator required");
@@ -102,9 +97,8 @@ namespace rzd {
         }
     }
 
-    // merge sort
     template <typename BidIt, typename Pred = std::less<>>
-    void msort(BidIt first, BidIt last, Pred compare = {})
+    void merge_sort(BidIt first, BidIt last, Pred compare = {})
     {
         static_assert(is<BidIt, std::bidirectional_iterator_tag>,
                       "at least forward iterator required");
@@ -113,15 +107,14 @@ namespace rzd {
 
         if (size > 1) {
             const auto mid = std::next(first, size / 2);
-            msort(first, mid, compare);
-            msort(mid, last, compare);
+            merge_sort(first, mid, compare);
+            merge_sort(mid, last, compare);
             std::inplace_merge(first, mid, last, compare);
         }
     }
 
-    // quick sort
     template <typename ForIt, typename Pred = std::less<>>
-    void qsort(ForIt first, ForIt last, Pred compare = {})
+    void quick_sort(ForIt first, ForIt last, Pred compare = {})
     {
         static_assert(is<ForIt, std::forward_iterator_tag>,
                       "at least forward iterator required");
@@ -138,16 +131,16 @@ namespace rzd {
                 return !compare(pivot, element);
             });
             
-            qsort(first, pre_mid, compare);
-            qsort(post_mid, last, compare);
+            quick_sort(first, pre_mid, compare);
+            quick_sort(post_mid, last, compare);
         }
     }
 
-    // qsort wrapper
+    // quick sort wrapper
     template <typename It, typename Pred = std::less<>>
     void sort(It first, It last, Pred compare = {})
     {
-        rzd::qsort(first, last, compare);            
+        rzd::quick_sort(first, last, compare);            
     }
 
 }
