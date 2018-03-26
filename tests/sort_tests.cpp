@@ -29,13 +29,13 @@ int main()
     std::list<int> bid_list{ init_list };
     std::vector<int> ran_list{ init_list };
 
-    assert(test(for_list, rzd::bsort));
-    assert(test(for_list, rzd::ssort));
-    assert(test(for_list, rzd::qsort));
+    assert(test(for_list, rzd::bubble_sort));
+    assert(test(for_list, rzd::selection_sort));
+    assert(test(for_list, rzd::quick_sort));
 
-    assert(test(bid_list, rzd::isort));
-    assert(test(bid_list, rzd::gsort));
-    assert(test(bid_list, rzd::msort));	
+    assert(test(bid_list, rzd::insertion_sort));
+    assert(test(bid_list, rzd::gnome_sort));
+    assert(test(bid_list, rzd::merge_sort));	
 
-    assert(test(ran_list, rzd::shsort));
+    assert(test(ran_list, rzd::shell_sort));
 }
