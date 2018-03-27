@@ -30,9 +30,9 @@ int main()
     std::vector<int> ran_list{ init_list };
 
     assert(test(for_list, rzd::bubble_sort));
-    assert(test(for_list, rzd::selection_sort));
     assert(test(for_list, rzd::quick_sort));
 
+    assert(test(bid_list, rzd::selection_sort));
     assert(test(bid_list, rzd::insertion_sort));
     assert(test(bid_list, rzd::gnome_sort));
     assert(test(bid_list, rzd::merge_sort));	
