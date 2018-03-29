@@ -15,7 +15,7 @@ rzd::tree<int, std::string> sample_tree;
 rzd::tree<int, std::string> sample_tree{ { 42, "ritzeed" }, { 24, "rzd" } };
 
 // specifies sort order
-rzd::tree<int, std::string> sample_tree(std::greater<>());
+rzd::tree<int, std::string, std::greater<>> sample_tree;
 ```
 #### Add nodes
 ```

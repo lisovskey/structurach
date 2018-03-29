@@ -273,12 +273,6 @@ namespace rzd {
             , cmp{ key_compare{} }
             , size_count{} {}
 
-        // create empty tree with custom predicate
-        explicit tree(const key_compare& cmp)
-            : root{ nullptr }
-            , cmp{ cmp }
-            , size_count{} {}
-
         // create filled tree
         tree(std::initializer_list<value_type> init)
             : cmp{ key_compare{} }
