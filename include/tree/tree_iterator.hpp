@@ -93,6 +93,11 @@ namespace rzd {
             return leaf->data;
         }
 
+        value_type* operator->()
+        {
+            return &leaf->data;
+        }
+
         bool operator==(const iterator& it)
         {
             return leaf == it.leaf;

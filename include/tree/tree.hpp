@@ -53,13 +53,13 @@ namespace rzd {
         {
             if (cmp(data.first, leaf->data.first)) {
                 if (leaf->left == nullptr)
-                    return leaf->left = { new node{ *this, leaf, data } };
+                    return leaf->left = pointer{ new node{ *this, leaf, data } };
                 else
                     return insert(leaf->left, data);
             }
             else if (cmp(leaf->data.first, data.first)) {
                 if (leaf->right == nullptr)
-                    return leaf->right = { new node{ *this, leaf, data } };
+                    return leaf->right = pointer{ new node{ *this, leaf, data } };
                 else
                     return insert(leaf->right, data);
             }
@@ -166,7 +166,7 @@ namespace rzd {
         inline iterator insert(const iterator& it, const value_type& data)
         {
             if (it == end())
-                return { *this, it = { new node{ *this, nullptr, data } } };
+                return { *this, it = pointer{ new node{ *this, nullptr, data } } };
             else
                 return { *this, insert(it.leaf, data) };
         }
@@ -175,7 +175,7 @@ namespace rzd {
         inline iterator insert(const value_type& data)
         {
             if (root == nullptr)
-                return { *this, root = { new node{ *this, nullptr, data } } };
+                return { *this, root = pointer{ new node{ *this, nullptr, data } } };
             else
                 return { *this, insert(root, data) };
         }
@@ -199,9 +199,9 @@ namespace rzd {
         }
 
         // remove node by iterator
-        inline bool erase(iterator& it)
+        inline bool erase(iterator it)
         {
-            return erase(it.leaf, (*it).first);
+            return erase(it.leaf, it->first);
         }
 
         // remove node by key
@@ -264,7 +264,7 @@ namespace rzd {
             if (pointer leaf{ find(root, key) })
                 return leaf->data.second;
             else
-                return (*insert(std::make_pair(key, mapped_type{}))).second;
+                return insert(std::make_pair(key, mapped_type{}))->second;
         }
 
         // create empty tree
