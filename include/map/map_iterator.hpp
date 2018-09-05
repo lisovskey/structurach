@@ -3,10 +3,10 @@
  * created by lisovskey
  */
 
-#ifndef TREE_ITERATOR_HPP
-#define TREE_ITERATOR_HPP
+#ifndef MAP_ITERATOR_HPP
+#define MAP_ITERATOR_HPP
 
-#include "tree.hpp"
+#include "map.hpp"
 #include <stdexcept>
 
 namespace rzd {
@@ -15,18 +15,18 @@ template <
   typename Key,
   typename T,
   typename Compare
-> class tree<Key, T, Compare>::iterator {
+> class map<Key, T, Compare>::iterator {
 
-  using pointer = typename tree::pointer;
-  using value_type = typename tree::value_type;
+  using pointer = typename map::pointer;
+  using value_type = typename map::value_type;
 
-  const tree& tree_ref;
+  const map& map_ref;
   bool is_end;
 
   pointer prev_parent(pointer leaf) {
     if (leaf->parent == nullptr)
       throw std::out_of_range("iterator went over the begin");
-    else if (tree_ref.cmp(leaf->parent->data.first, leaf->data.first))				
+    else if (map_ref.cmp(leaf->parent->data.first, leaf->data.first))				
       return leaf->parent;
     else
       return prev_parent(leaf->parent);
@@ -35,7 +35,7 @@ template <
   pointer next_parent(pointer leaf) {
     if (leaf->parent == nullptr)
       return nullptr;
-    else if (tree_ref.cmp(leaf->data.first, leaf->parent->data.first))
+    else if (map_ref.cmp(leaf->data.first, leaf->parent->data.first))
       return leaf->parent;
     else
       return next_parent(leaf->parent);
@@ -47,11 +47,11 @@ public:
 
   iterator& operator--() {
     if (is_end)
-      node_ptr = tree_ref.rightmost(tree_ref.root);
+      node_ptr = map_ref.rightmost(map_ref.root);
     else if (node_ptr == nullptr)
       throw std::out_of_range("iterator went wrong way");
     else if (node_ptr->left != nullptr)
-      node_ptr = tree_ref.rightmost(node_ptr->left);
+      node_ptr = map_ref.rightmost(node_ptr->left);
     else
       node_ptr = prev_parent(node_ptr);
     is_end = false;
@@ -64,7 +64,7 @@ public:
     else if (node_ptr == nullptr)
       throw std::out_of_range("iterator went wrong way");
     else if (node_ptr->right != nullptr)
-      node_ptr = tree_ref.leftmost(node_ptr->right);
+      node_ptr = map_ref.leftmost(node_ptr->right);
     else if (!(node_ptr = next_parent(node_ptr)))
       is_end = true;
     return *this;
@@ -98,8 +98,8 @@ public:
     return node_ptr != it.node_ptr;
   }
 
-  iterator(const tree& tree_ref, pointer leaf)
-      : tree_ref{ tree_ref }
+  iterator(const map& map_ref, pointer leaf)
+      : map_ref{ map_ref }
       , node_ptr{ leaf } {
     is_end = (node_ptr == nullptr);
   }

@@ -3,25 +3,25 @@
  * created by lisovskey
  */
 
-#include "tree_node.hpp"
-#include "tree_iterator.hpp"
+#include "map_node.hpp"
+#include "map_iterator.hpp"
 
-#ifndef TREE_HPP
-#define TREE_HPP
+#ifndef MAP_HPP
+#define MAP_HPP
 
 #include <memory>
 #include <functional>
 
 namespace rzd {
 
-// binary search tree
+// binary search map
 template <
   typename Key,
   typename T,
   typename Compare = std::less<Key>
-> class tree {
+> class map {
 
-  // unit of tree
+  // unit of map
   struct node;
 
  public:
@@ -193,7 +193,7 @@ template <
     return size_count;
   }
 
-  // return true if tree is empty
+  // return true if map is empty
   inline bool empty() const {
     return size_count == 0;
   }
@@ -232,14 +232,14 @@ template <
       return insert(std::make_pair(key, mapped_type{}))->second;
   }
 
-  // create empty tree
-  tree()
+  // create empty map
+  map()
       : root{ nullptr }
       , cmp{ key_compare{} }
       , size_count{} {}
 
-  // create filled tree
-  tree(std::initializer_list<value_type> init)
+  // create filled map
+  map(std::initializer_list<value_type> init)
       : cmp{ key_compare{} }
       , size_count{} {
     for (const value_type& item : init)
